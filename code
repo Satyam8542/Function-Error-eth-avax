@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ErrorHandlingExample {
+    address public owner;
+    uint256 public value;
+
+    constructor() {
+        owner = msg.sender; // Set the owner as the contract deployer
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not the contract owner");
+        _;
+    }
+
+    function setValue(uint256 _value) public onlyOwner {
+        // Use require to check for a valid condition
+        require(_value > 0, "Value must be greater than zero");
+        value = _value;
+    }
+
+    function incrementValue(uint256 _increment) public {
+        // Use assert to check for a condition that should always be true
+        assert(value + _increment > value); // This should always hold true unless overflow occurs
+        value += _increment;
+    }
+
+    function resetValue() public {
+        // Use revert to handle an error and provide a custom error message
+        if (value == 0) {
+            revert("Value is already zero");
+        }
+        value = 0;
+    }
+
+    function withdraw() public onlyOwner {
+        // Use require to ensure the contract has a balance to withdraw
+        require(address(this).balance > 0, "No balance to withdraw");
+        payable(owner).transfer(address(this).balance);
+    }
+
+    // Fallback function to receive Ether
+    receive() external payable {}
+}
